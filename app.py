@@ -32,6 +32,7 @@ from peewee import (
 # otherwise, it connects to a local sqlite db stored in the predictions.db file
 DB = connect(os.environ.get('DATABASE_URL') or 'sqlite:///predictions.db')
 
+
 class Prediction(Model):
     obs_id = IntegerField(unique=True)
     observation = TextField()
@@ -41,7 +42,9 @@ class Prediction(Model):
     class Meta:
         database = DB
 
+
 DB.create_tables([Prediction], safe=True)
+
 
 ##################################
 # unpickles the previously trained model
@@ -52,20 +55,20 @@ with open('dtypes.pickle', 'rb') as fh:
     dtypes = pickle.load(fh)
 
 pipeline = joblib.load('pipeline.pickle')
-
 ##################################
-# sets up webserver
 
+# sets up webserver
 # the Flask constructor creates a new application that we can add routes to
 app = Flask(__name__)
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
     obs_dict = request.get_json()
     _id = obs_dict['id']
-    observation = obs_dict['observation']
+    observation = [obs_dict['StatuteReason'], obs_dict['SubjectAge'], obs_dict['InterventionDateTime']]
     
-    obs = pd.DataFrame([observation], columns=columns).astype(dtypes)
+    obs = pd.DataFrame(observation, columns=columns).astype(dtypes)
     proba = pipeline.predict_proba(obs)[0, 1]
 
     response = {'proba': proba}
@@ -87,6 +90,7 @@ def predict():
         response
     )
 
+
 @app.route('/update', methods=['POST'])
 def update():
     obs_dict = request.get_json()
@@ -100,6 +104,7 @@ def update():
         return jsonify({'error': error_msg})
 
 ########################################
+
 
 if __name__ == "__main__":
     app.run(debug=True)
