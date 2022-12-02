@@ -545,18 +545,21 @@ it can get CRAZY expensive REALLY fast.
 
 ### Sign up and set up at railway
 
-Go to the [railway main page](https://railway.app/) and start a new project deployed from a github repo.
+Go to the [railway main page](https://railway.app/) and start a new project deployed from a github repo. Alternatively you can use the login button.
 
 ![main page](media/main_page.png)
 ![gh deploy](media/gh_deploy.png)
 
-Once this is all done, go to the [dashboard](https://dashboard.heroku.com/apps) and create a new
+Sign in using your GitHub credentials and verify your account.
+
+![gh login](media/gh_login.png)
+
+Once this is all done, go to the [dashboard](https://railway.app/dashboard) and create a new
 app:
 
-![create new app](https://i.imgur.com/SYyFMV1.png)
+![create new app](media/new_project.png)
 
-Then on the next screen, give it a name and make sure that it's in the Europe zone. It won't
-kill anobody to have it in the land of the free but it's kinda far...
+Then on the next screen, we'll reselect the "deploy from GitHub" option. Grant access to your repositories and select the appropriate one.
 
 ![select name and region](https://i.imgur.com/oUPNzOk.png)
 
