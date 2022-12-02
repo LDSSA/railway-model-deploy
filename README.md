@@ -1,4 +1,4 @@
-# Scikit model behind flask app on heroku
+# Scikit model behind flask app on railway
 
 ## tl;dr
 
@@ -7,7 +7,7 @@ You can deploy your own model by
 1. Copying the contents of this repo to a new directory
 1. Replace `pipeline.pickle`, `dtypes.pickle`, and `columns.json` with
    your own
-1. [Deploy to heroku](https://github.com/LDSSA/heroku-model-deploy#deploy-to-heroku)
+1. [Deploy to railway](#deploy-to-railway)
 
 You'll probably run into a few issues along the way which is why you'll at least want to
 skim the contents of the notebooks and this README, in order to have an idea of
@@ -274,7 +274,7 @@ called an [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping). For th
 exercise we will use a very simplistic ORM called [peewee](http://docs.peewee-orm.com/en/latest/index.html).
 This will allow us to use a local database called [sqlite](https://en.wikipedia.org/wiki/SQLite) (which is basically a file)
 when we are developing on our laptops, and use a more production-ready database called
-[postgresql](https://en.wikipedia.org/wiki/PostgreSQL) when deploying to heroku, with very
+[postgresql](https://en.wikipedia.org/wiki/PostgreSQL) when deploying to railway, with very
 little change to our code.
 
 One cool thing that ORMs allow us to do is define the data model that we want
@@ -531,26 +531,24 @@ Now to wrap it all up, the way that we can interpret this sequence of events is 
 1. We found out later that the person didn't survive.
 
 
-## Deploy to Heroku
+## Deploy to railway
 
 It's cool and all that we can run the servers on our own machines. However, it doesn't
 do much good in terms of making the model available to the rest of the world. All this
 `localhost` stuff doesn't help anybody that's not typing on your local machine.
 
-So let's take all of the work we've done getting this running and put it on heroku, where it can generate real business value. For this part, you can use any server
+So let's take all of the work we've done getting this running and put it on railway, where it can generate real business value. For this part, you can use any server
 that has a static IP address though since we want to avoid the overhead of administering
-our own server, we will use a service to do this for us called [heroku](https://www.heroku.com/).
-This is one of the oldest managed platforms out there and is quite robust, well-known, and
-documented. However, be careful before you move forward with a big project on Heroku -
+our own server, we will use a service to do this for us called [railway](https://railway.app/).
+Railway includes a free-tier that should be enough for our needs throughout this specialization and the capstone project that is fast approaching, but **only if you remember to turn off your applications once you're done with them**. You have a **$5.00** and **500 hours** of credit each month, but **it's your responsibility to manage this**. Be careful before you move forward with a big project on railway -
 it can get CRAZY expensive REALLY fast.
 
-However, for our purposes, they offer a free tier webserver and database that is enough to suit our
-needs and we can do deployments in a few commands super easily. This may be a bit tough
-for some of you but trust me: the alternative of admining your own server is MUCH more difficult.
+### Sign up and set up at railway
 
-### Sign up and set up at heroku
+Go to the [railway main page](https://railway.app/) and start a new project deployed from a github repo.
 
-Go to the [signup page](https://signup.heroku.com/) and register for the free tier.
+![main page](media/main_page.png)
+![gh deploy](media/gh_deploy.png)
 
 Once this is all done, go to the [dashboard](https://dashboard.heroku.com/apps) and create a new
 app:
