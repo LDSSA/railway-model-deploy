@@ -16,7 +16,7 @@ where to look when you hit a bump in the road.
 ## Intro
 
 This is a very simplistic yet effective way to deploy a scikit binary
-classifier behind a HTTP server on heroku.
+classifier behind a HTTP server on railway.
 
 There are 4 main topics to cover here:
 
@@ -26,7 +26,7 @@ There are 4 main topics to cover here:
     - Covered here in the README
 1. Database connection
     - Covered here in the README
-1. Deployment to heroku
+1. Deployment to railway
     - Also covered here in the README
 
 ## Before continuing
@@ -34,11 +34,11 @@ There are 4 main topics to cover here:
 Topic #1 is the only one that is not covered here in this README. It is covered in two notebooks
 that you must read before moving on with the rest of this README.
 
-[Notebook #1](https://github.com/LDSSA/heroku-example/blob/master/Step%201%20-%20Train%20and%20Serialize.ipynb) has
+[Notebook #1](Step%201%20-%20Train%20and%20Serialize.ipynb) has
 to do with training and serializing a scikit model as well as how to prepare a new observation
 that arrives for prediction.
 
-[Notebook #2](https://github.com/LDSSA/heroku-example/blob/master/Step%202%20-%20Deserialize%20and%20use.ipynb) has
+[Notebook #2](Step%202%20-%20Deserialize%20and%20use.ipynb) has
 to do with deserialization so that you can re-use a model on new observations without having to re-train
 it.
 
