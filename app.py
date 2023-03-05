@@ -15,9 +15,9 @@ from playhouse.db_url import connect
 ########################################
 # Begin database stuff
 
-# the connect function checks if there is a DATABASE_URL env var
-# if it exists, it uses it to connect to a remote postgres db
-# otherwise, it connects to a local sqlite db stored in predictions.db
+# The connect function checks if there is a DATABASE_URL env var.
+# If it exists, it uses it to connect to a remote postgres db.
+# Otherwise, it connects to a local sqlite db stored in predictions.db.
 DB = connect(os.environ.get('DATABASE_URL') or 'sqlite:///predictions.db')
 
 class Prediction(Model):
@@ -60,15 +60,15 @@ app = Flask(__name__)
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # flask provides a deserialization convenience function called
-    # get_json that will work if the mimetype is application/json
+    # Flask provides a deserialization convenience function called
+    # get_json that will work if the mimetype is application/json.
     obs_dict = request.get_json()
     _id = obs_dict['id']
     observation = obs_dict['observation']
-    # now do what we already learned in the notebooks about how to transform
-    # a single observation into a dataframe that will work with a pipeline
+    # Now do what we already learned in the notebooks about how to transform
+    # a single observation into a dataframe that will work with a pipeline.
     obs = pd.DataFrame([observation], columns=columns).astype(dtypes)
-    # now get ourselves an actual prediction of the positive class
+    # Now get ourselves an actual prediction of the positive class.
     proba = pipeline.predict_proba(obs)[0, 1]
     response = {'proba': proba}
     p = Prediction(
