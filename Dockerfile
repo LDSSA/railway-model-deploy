@@ -1,4 +1,4 @@
-FROM python:3.8-buster
+FROM python:3.10-buster
 
 ADD . /opt/ml_in_app
 WORKDIR /opt/ml_in_app

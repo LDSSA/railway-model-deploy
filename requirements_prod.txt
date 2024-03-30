@@ -1,7 +1,6 @@
 numpy==1.20.3
 pandas==1.2.4
 scikit-learn==0.24.2
-category_encoders==2.5.1.post0
 flask==2.2.2
 peewee==3.15.4
 psycopg2-binary==2.9.5
