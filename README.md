@@ -534,7 +534,7 @@ Now to wrap it all up, the way that we can interpret this sequence of events is 
 It's cool that we can run the server on our own machine. However, it doesn't do much good in terms of making the model available to the rest of the world. All this `localhost` stuff doesn't help anybody that's not typing on your local machine.
 
 So let's take all of the work we've done and put it on railway where it can generate real business value. For this part, you can use any server that has a static IP address. Since we want to avoid the overhead of administering our own server, we will use a service to do this for us called [railway](https://railway.app/).
-Railway includes a free-tier that should be enough for our needs throughout this specialization and the capstone project that is fast approaching, but **only if you remember to turn off your applications once you're done with them**. You have **$5.00** and **500 hours** of credit each month, but **it's your responsibility to manage this**. Be careful before you move forward with a big project on railway - it can get CRAZY expensive REALLY fast.
+Railway includes a free-tier (if you connect your GitHub account) that should be enough for our needs throughout this specialization and the capstone project that is fast approaching, but **only if you remember to turn off your applications once you're done with them**. You have **$5.00** of credit each month, but **it's your responsibility to manage this**. Be careful before you move forward with a big project on railway - it can get CRAZY expensive REALLY fast.
 
 ### 8.1 Sign up and set up at railway
 
@@ -573,15 +573,15 @@ One last thing before we can move on to the database creation, we need to redefi
 ### 8.2 Database 
 
 One last bit is missing here: **the database**. We are going to use a big boy database
-called postgreSQL and luckily railway free tier allows you to store data **as long as you have credits remaining**. This should be enough for our purposes, but you should try to be conservative with how you connect to the app and don't go crazy with it. If the database gets full your app will stop working!
+called postgreSQL. You should try to be conservative with how you connect to the app and don't go crazy with it. If the database gets full your app will stop working!
 
 You can check railway's postgreSQL guide [here](https://docs.railway.app/databases/postgresql).
 
-To add a Database to our app, we'll need to go back to Dashboard, select "New project", and then "Provision PostgreSQL".
+To add a Database to our app, select "New", "Database", and then "Add PostgreSQL".
 
 ![start database](media/database.png)
 
-After the postgreSQL database is created, we'll need to get the DATABASE_URL so we can connect our two services. We'll copy the `Postgres connection URL` available in the "Connect" tab.
+After the postgreSQL database is created, we'll need to get the DATABASE_URL so we can connect our two services. We'll copy the `Postgres DATABASE_URL` available in the "Variables" tab of the Postgres service.
 
 ![connect database url](media/database_connect.png)
 
@@ -598,7 +598,7 @@ There is no data in the table, but it exists because the query ran successfully.
 
 ### 8.3 Remove deployment
 
-To stop billing and resource usage, you'll need to stop the application from running. To do so, find your app in the dashboard and select the 3 dots in the most recent deployment. Select "Remove". 
+To stop billing and resource usage, you'll need to stop the application from running. To do so, find your app and database in the dashboard and select the 3 dots in the most recent deployment. Select "Remove". 
 
 ![remove deployment](media/remove_deployment.png)
 ![remove deployment 2](media/remove_deployment_2.png)
