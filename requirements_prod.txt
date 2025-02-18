@@ -1,5 +1,6 @@
-pandas==2.1.0 
-scikit-learn==1.3.0
-Flask==3.0.2
-peewee==3.17.1
-psycopg2-binary==2.9.9
+pandas==2.2.2              # base
+scikit-learn==1.5.0        # base
+
+Flask==3.1.0              # S06
+peewee==3.17.9            # S06
+psycopg2-binary==2.19.10  # S06
