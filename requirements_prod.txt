@@ -1,6 +1,10 @@
 pandas==2.2.2              # base
+matplotlib==3.9.0          # base
 scikit-learn==1.5.0        # base
+category-encoders==2.6.3   # base
 
-Flask==3.1.0              # S06
-peewee==3.17.9            # S06
-psycopg2-binary==2.19.10  # S06
+Flask==3.1.0               # S06
+peewee==3.17.9             # S06
+#gunicorn==23.0.0          # S06
+psycopg2-binary==2.9.10    # S06
+
