@@ -16,7 +16,7 @@ You can deploy your own model by
 1. Copying the contents of this repo to a new directory
 1. Replace `pipeline.pickle`, `dtypes.pickle`, and `columns.json` with
    your own
-1. [Deploy to railway](#deploy-to-railway)
+1. Deploy to railway
 
 You'll probably run into a few issues along the way which is why you'll at least want to
 skim the contents of the notebooks and this README, in order to have an idea of
@@ -24,7 +24,7 @@ where to look when you hit a bump in the road.
 
 ## 1. Intro
 
-This is a very simplistic yet effective way to deploy a scikit model behind a HTTP server on railway.
+This is a very simplistic yet effective way to deploy a scikit model behind an HTTP server on railway.
 
 There are 4 main topics to cover here:
 
@@ -39,16 +39,16 @@ There are 4 main topics to cover here:
 
 ### 1.1 Before you continue
 
-Topic #1 is the only one that is not covered here in this README. It is covered in two notebooks
-that you must read before moving on with the rest of this README.
+Topic #1 is the only one that is not covered here in this README. It is covered in two learning notebooks
+that you should read before moving on with the rest of this README.
 
-[Notebook #1](Learning notebook - Part 1 of 2 - Train and serialize.ipynb) has to do with training and serializing a scikit model as well as how to prepare a new observation that arrives for prediction.
+Learning notebook 1 has to do with training and serializing a scikit model as well as how to prepare a new observation that arrives for prediction.
 
-[Notebook #2](Learning notebook - Part 2 of 2 - Deserialize and use.ipynb) explains how to deserialize the saved model so that you can use a trained model with new observations without having to re-train it.
+Learning notebook 2 explains how to deserialize the saved model so that you can use a trained model with new observations without having to re-train it.
 
 ### 1.2 Python virtual environment
 
-You've probably noticed that we have two requirement files in this repo: `requirements_dev.txt` and `requirements_prod.txt`.
+You've probably noticed that we have two requirements files in this repo: `requirements_dev.txt` and `requirements_prod.txt`.
 
 The `requirements_dev.txt` file has the packages that are needed while preparing the model and include jupyter and matplotlib.
 
@@ -76,7 +76,7 @@ flask and be reasonably justified in it.
 In order to use flask, you will need to write code in a regular
 Python file - no more notebooks here.
 
-The first step (assuming you have already created a virtual environment and installed the requirements in requirements_dev.txt), is to import flask at the top of the file and create the HTTP server. Let's pretend that we are working in a file called app.py in our newly created virtual environment.
+The first step (assuming you have already created a virtual environment and installed the requirements in `requirements_dev.txt`), is to import flask at the top of the file and create the HTTP server. Let's pretend that we are working in a file called `app.py` in our newly created virtual environment.
 
 We're doing three imports. The [Flask](https://flask.palletsprojects.com/en/stable/api/#application-object) object is for creating an HTTP server. The [request](https://flask.palletsprojects.com/en/stable/api/#flask.request) object does exactly what the name suggests: holds all of the contents of an HTTP request that someone is making. The [jsonify](https://flask.palletsprojects.com/en/stable/api/#flask.json.jsonify) function converts objects such as dictionaries to json.
 
@@ -131,12 +131,12 @@ if __name__ == "__main__":
 
 ```
 
-Create a new file called `first_app.py` and save the above code. To run the server, open a terminal window and create a new virtual environment for production with the `requirements_prod.txt` file. Then run the server by executing `python3.12 first_app.py. You're server will now be running locally.
+Create a new file called `first_app.py` and save the above code. To run the server, open a terminal window and create a new virtual environment for production with the `requirements_prod.txt` file. Then run the server by executing `python3.12 first_app.py`. Your server will now be running locally.
 
-Now you can send requests to your server and get predictions. Open a new terminal window, activate the production virtual environment, and execute the following command in order to get a prediction:
+Now you can send requests to your server and get predictions. Open a new terminal window and execute the following command in order to get a prediction:
 
 ```bash
-~ > curl -X POST http://localhost:5000/predict
+curl -X POST http://localhost:5000/predict
 ```
 
 You should get the following output:
@@ -178,7 +178,7 @@ if __name__ == "__main__":
 ```
 Add this code to your `first_app.py` file. You can notice that the server has automatically restarted when you made changes to the app file (unless you made a syntax error in which case it shut down). Now test the server with the following examples:
 ```bash
-~ > curl -X POST http://localhost:5000/predict -d '{"unemployed": true}' -H "Content-Type:application/json"
+curl -X POST http://localhost:5000/predict -d '{"unemployed": true}' -H "Content-Type:application/json"
 ```
 
 You should get:
@@ -190,7 +190,7 @@ You should get:
 
 For this command:
 ```bash
-~ > curl -X POST http://localhost:5000/predict -d '{"unemployed": false}' -H "Content-Type:application/json"
+curl -X POST http://localhost:5000/predict -d '{"unemployed": false}' -H "Content-Type:application/json"
 ```
 
 You should get:
@@ -252,7 +252,7 @@ and can be consumed by the pipeline to be turned into a prediction
 of survival. Copy the code into your app file and test it with the following:
 
 ```
-~ >  curl -X POST http://localhost:5000/predict -d '{"Age": 22.0, "Cabin": null, "Embarked": "S", "Fare": 7.25, "Parch": 0, "Pclass": 3, "Sex": "male", "SibSp": 1}' -H "Content-Type:application/json"
+curl -X POST http://localhost:5000/predict -d '{"Age": 22.0, "Cabin": null, "Embarked": "S", "Fare": 7.25, "Parch": 0, "Pclass": 3, "Sex": "male", "SibSp": 1}' -H "Content-Type:application/json"
 ```
 
 You should get:
@@ -271,7 +271,7 @@ take record of what you have predicted about which input, so that later on you c
 
 In order to do this, we will need to start working with a database. The database
 will keep track of the observations, the predictions that the model provided for them,
-and the true outcomes (should we be luckly enough to find out about them).
+and the true outcomes (should we be lucky enough to find out about them).
 
 ### 3.1 ORMs and peewee
 
@@ -283,8 +283,7 @@ when we are developing on our laptops, and use a more production-ready database 
 [postgresql](https://en.wikipedia.org/wiki/PostgreSQL) when deploying to railway, with very
 little change to our code.
 
-One cool thing that ORMs allow us to do is define the data model that we want
-to use in code. So let's use peewee to create a data model to keep track of
+One cool thing that ORMs allow us to do is define the data model. So let's use peewee to create a data model to keep track of
 predictions and the probabilities we have assigned to them. Once again, we can
 take care of this with a few lines of code:
 
@@ -346,7 +345,7 @@ the following:
 `DB.create_tables([Prediction], safe=True)`
 
 The model that we specified must correspond to a database table.
-Creation of these tables is something that is it's own non-trivial
+Creation of these tables is something that is its own non-trivial
 headache, and this one line of code makes it so that we don't have to worry about any of it.
 
 ## 4. Integrate the database with the webserver
@@ -464,17 +463,17 @@ What is this code doing? When we receive a new prediction request, we want to st
 in our database (to keep track of our model performance). With peewee, we save a new Prediction (basically
 a new row in our table) with the `save()` method, which is very neat and convenient.
 
-However, because our table has a unique constraint (no two rows can have the same `observation_id`, which is a unique field),
+However, because our table has a uniqueness constraint (no two rows can have the same `observation_id`),
 if we perform the same prediction request twice (with the same id) the system will crash because pewee can't save
-again an already saved observation_id, it will throw an `IntegrityError` (as in, we would be asking pewee to violate
+again an already saved `observation_id`. It will throw an `IntegrityError` (as in, we would be asking pewee to violate
 the integrity of the table's unique id requirement if we saved a duplicated id, right?).
 
-To avoid that, we do a simple try/except block: if we try a request with the same observation_id, peewee will raise the integrity error and we'll catch it, print a nice error message, and do a database rollback (to close the current save transaction that has failed).
+To avoid that, we do a simple try/except block: if we try a request with the same `observation_id`, peewee will raise the integrity error and we'll catch it, print a nice error message, and do a database rollback (to close the current save transaction that has failed).
 
 Once your app is setup like this, you can test this with the following command:
 
 ```bash
-~ > curl -X POST http://localhost:5000/predict -d '{"id": 0, "observation": {"Age": 22.0, "Cabin": null, "Embarked": "S", "Fare": 7.25, "Parch": 0, "Pclass": 3, "Sex": "male", "SibSp": 1}}' -H "Content-Type:application/json"
+curl -X POST http://localhost:5000/predict -d '{"id": 0, "observation": {"Age": 22.0, "Cabin": null, "Embarked": "S", "Fare": 7.25, "Parch": 0, "Pclass": 3, "Sex": "male", "SibSp": 1}}' -H "Content-Type:application/json"
 ```
 
 You should get:
@@ -526,7 +525,7 @@ would then trigger a call to your server which would end up looking like
 the following:
 
 ```bash
-~ > curl -X POST http://localhost:5000/update -d '{"id": 0, "true_class": 0}'  -H "Content-Type:application/json"
+curl -X POST http://localhost:5000/update -d '{"id": 0, "true_class": 0}'  -H "Content-Type:application/json"
 ```
 
 And it would elicit a response from your server like:
@@ -540,7 +539,7 @@ And it would elicit a response from your server like:
 }
 ```
 
-Similarly to when we saved the prediction requests, we validate that the observation_id we want to update actually exists.
+Similarly to when we saved the prediction requests, we validate that the `observation_id` we want to update actually exists.
 
 Now to wrap it all up, the way that we can interpret this sequence of events is the following:
 
@@ -602,13 +601,13 @@ One last thing before we can move on to the database creation, we need to redefi
 One last bit is missing here: **the database**. We are going to use a big boy database
 called postgreSQL. You should try to be conservative with how you connect to the app and don't go crazy with it. If the database gets full your app will stop working!
 
-You can check railway's postgreSQL guide [here](https://docs.railway.app/databases/postgresql).
+You can check railway's postgreSQL guide [here](https://docs.railway.com/guides/postgresql).
 
 To add a Database to our app, go to the dashboard, right click and select a new service to add:
 
-![start database](media/database+from_dashboard.png)
+![start database](media/database_from_dashboard.png)
 
-The database should automatically connect to your app. Go to "Variables" and check that you have the `DATABASE_URL` variable define:
+The database should automatically connect to your app. Go to "Variables" and check that you have the `DATABASE_URL` variable defined:
 ![connect database variable](media/database_connect_variable.png)
 
 Wait for the app to redeploy after adding the database and test that the app is connected to the database like this:
@@ -691,7 +690,7 @@ from custom_transformers.transformer import MyCustomTransformer
 
 When you unpickle your model, Python should be able to find the custom transformer too.
 
-The dependencies of your custom transformer should be added to the two `requirements.txt` files.
+The dependencies of your custom transformer should be added to both requirements files.
 
 ### 6.7 Last few notes
 
