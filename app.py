@@ -79,7 +79,7 @@ def predict():
     try:
         p.save()
     except IntegrityError:
-        error_msg = 'Observation ID: "{}" already exists'.format(_id)
+        error_msg = f'Observation ID {_id} already exists'
         response['error'] = error_msg
         print(error_msg)
         DB.rollback()
@@ -95,7 +95,7 @@ def update():
         p.save()
         return jsonify(model_to_dict(p))
     except Prediction.DoesNotExist:
-        error_msg = 'Observation ID: "{}" does not exist'.format(obs['id'])
+        error_msg = f'Observation ID {obs['id']} does not exist'
         return jsonify({'error': error_msg})
 
 
