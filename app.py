@@ -60,30 +60,71 @@ app = Flask(__name__)
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Flask provides a deserialization convenience function called
-    # get_json that will work if the mimetype is application/json.
+    # Deserialize the JSON payload
     obs_dict = request.get_json()
+
+    # Validate the presence of required fields
+    if not obs_dict or 'id' not in obs_dict or 'observation' not in obs_dict:
+        return jsonify({'error': 'Payload must contain "id" and "observation" fields'}), 400
+
     _id = obs_dict['id']
     observation = obs_dict['observation']
-    # Now do what we already learned in the notebooks about how to transform
-    # a single observation into a dataframe that will work with a pipeline.
-    obs = pd.DataFrame([observation], columns=columns).astype(dtypes)
-    # Now get ourselves an actual prediction of the positive class.
+
+    # Validate the observation fields
+    required_fields = ['age', 'education', 'hours-per-week', 'native-country']
+    for field in required_fields:
+        if field not in observation:
+            return jsonify({'error': f'Observation is missing required field: {field}'}), 400
+
+    # Validate data types and formats
+    try:
+        age = int(observation['age'])
+        if age < 0 or age > 120:
+            return jsonify({'error': 'Age must be a positive integer between 0 and 120'}), 400
+
+        education = str(observation['education'])
+        hours_per_week = int(observation['hours-per-week'])
+        if hours_per_week < 0 or hours_per_week > 168:
+            return jsonify({'error': 'Hours-per-week must be a positive integer between 0 and 168'}), 400
+
+        native_country = str(observation['native-country'])
+    except (ValueError, TypeError) as e:
+        return jsonify({'error': f'Invalid data type for one or more fields: {str(e)}'}), 400
+
+    # Create a DataFrame for the observation
+    obs = pd.DataFrame([{
+        'age': age,
+        'education': education,
+        'hours-per-week': hours_per_week,
+        'native-country': native_country
+    }], columns=columns).astype(dtypes)
+
+    # Get the predicted probability
     proba = pipeline.predict_proba(obs)[0, 1]
-    response = {'proba': proba}
+
+    # Check if the observation ID already exists in the database
+    if Prediction.select().where(Prediction.observation_id == _id).exists():
+        existing_prediction = Prediction.get(Prediction.observation_id == _id)
+        return jsonify({
+            'error': f'Observation ID {_id} already exists',
+            'proba': existing_prediction.proba
+        }), 409
+
+    # Save the new prediction to the database
     p = Prediction(
         observation_id=_id,
+        observation=json.dumps(observation),  # Store observation as a JSON string
         proba=proba,
-        observation=request.data
+        true_class=None  # true_class is null for now
     )
     try:
         p.save()
     except IntegrityError:
-        error_msg = f'Observation ID {_id} already exists'
-        response['error'] = error_msg
-        print(error_msg)
         DB.rollback()
-    return jsonify(response)
+        return jsonify({'error': f'Observation ID {_id} already exists'}), 409
+
+    # Return the predicted probability
+    return jsonify({'proba': proba}), 200
 
 
 @app.route('/update', methods=['POST'])
