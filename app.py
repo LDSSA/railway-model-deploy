@@ -58,6 +58,11 @@ with open('dtypes.pickle', 'rb') as fh:
 app = Flask(__name__)
 
 
+
+
+
+
+# Predict endpoint
 @app.route('/predict', methods=['POST'])
 def predict():
     # Deserialize the JSON payload
@@ -106,7 +111,7 @@ def predict():
     if Prediction.select().where(Prediction.observation_id == _id).exists():
         existing_prediction = Prediction.get(Prediction.observation_id == _id)
         return jsonify({
-            'error': f'Observation ID {_id} already exists',
+            'error': f'Observation ID: "{_id}" already exists',
             'proba': existing_prediction.proba
         }), 409
 
@@ -121,10 +126,14 @@ def predict():
         p.save()
     except IntegrityError:
         DB.rollback()
-        return jsonify({'error': f'Observation ID {_id} already exists'}), 409
+        return jsonify({'error': f'Observation ID: "{_id}" already exists'}), 409
 
     # Return the predicted probability
     return jsonify({'proba': proba}), 200
+
+
+
+
 
 
 @app.route('/update', methods=['POST'])
