@@ -58,7 +58,30 @@ with open('dtypes.pickle', 'rb') as fh:
 app = Flask(__name__)
 
 
+@app.route('/predict', methods=['POST'])
+def predict():
+    obs_dict = request.get_json()
+    _id = obs_dict['id']
+    observation = obs_dict['observation']
+    obs = pd.DataFrame([observation], columns=columns).astype(dtypes)
+    proba = pipeline.predict_proba(obs)[0, 1]
+    response = {'proba': proba}
+    p = Prediction(
+        observation_id=_id,
+        proba=proba,
+        observation=request.data
+    )
+    try:
+        p.save()
+    except IntegrityError:
+        error_msg = "ERROR: Observation ID: '{}' already exists".format(_id)
+        response["error"] = error_msg
+        print(error_msg)
+        DB.rollback()
+    return jsonify(response)
 
+
+'''
 @app.route('/predict', methods=['POST'])
 def predict():
     # Deserialize the JSON payload
@@ -125,8 +148,7 @@ def predict():
 
     # Return the predicted probability
     return jsonify({'proba': proba}), 200
-
-
+'''
 
 
 @app.route('/update', methods=['POST'])
