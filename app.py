@@ -154,21 +154,25 @@ def predict():
 @app.route('/update', methods=['POST'])
 def update():
     obs = request.get_json()
+
+    # Validate the request payload
+    if not obs or 'id' not in obs or 'true_class' not in obs:
+        return jsonify({'error': 'Invalid request payload. Missing id or true_class.'}), 400
+
     try:
         p = Prediction.get(Prediction.observation_id == obs['id'])
         p.true_class = obs['true_class']
         p.save()
-        return jsonify(model_to_dict(p))
+        return jsonify(model_to_dict(p)), 200  # Return 200 OK
+
     except Prediction.DoesNotExist:
         error_msg = f'Observation ID {obs['id']} does not exist'
-        return jsonify({'error': error_msg})
+        return jsonify({'error': error_msg}), 404 #Return 404 Not Found
 
-
-@app.route('/list-db-contents')
-def list_db_contents():
-    return jsonify([
-        model_to_dict(obs) for obs in Prediction.select()
-    ])
+    except Exception as e:
+        # Handle other potential errors (database errors, etc.)
+        error_msg = f'An unexpected error occurred: {str(e)}'
+        return jsonify({'error': error_msg}), 500  # Return 500 Internal Server Error
 
 '''
 @app.route('/update', methods=['POST'])
