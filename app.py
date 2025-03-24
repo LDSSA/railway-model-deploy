@@ -57,7 +57,7 @@ with open('dtypes.pickle', 'rb') as fh:
 
 app = Flask(__name__)
 
-
+'''
 @app.route('/predict', methods=['POST'])
 def predict():
     obs_dict = request.get_json()
@@ -148,7 +148,7 @@ def predict():
 
     # Return the predicted probability
     return jsonify({'proba': proba}), 200
-'''
+
 
 
 @app.route('/update', methods=['POST'])
@@ -169,6 +169,27 @@ def list_db_contents():
     return jsonify([
         model_to_dict(obs) for obs in Prediction.select()
     ])
+
+'''
+@app.route('/update', methods=['POST'])
+def update():
+    obs = request.get_json()
+    try:
+        p = Prediction.get(Prediction.observation_id == obs['id'])
+        p.true_class = obs['true_class']
+        p.save()
+        return jsonify(model_to_dict(p))
+    except Prediction.DoesNotExist:
+        error_msg = f'Observation ID {obs['id']} does not exist'
+        return jsonify({'error': error_msg})
+
+
+@app.route('/list-db-contents')
+def list_db_contents():
+    return jsonify([
+        model_to_dict(obs) for obs in Prediction.select()
+    ])
+'''
 
 
 # End webserver stuff
