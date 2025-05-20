@@ -8,3 +8,9 @@ peewee==3.17.9             # S06
 #gunicorn==23.0.0          # S06
 psycopg2-binary==2.9.10    # S06
 
+tensorflow==2.12.0  # or your required version
+flask
+peewee
+pandas
+scikit-learn
+joblib
