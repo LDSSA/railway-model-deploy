@@ -9,7 +9,7 @@ peewee==3.17.9             # S06
 psycopg2-binary==2.9.10    # S06
 
 
-tensorflow==2.12.0  # or your required version
+tensorflow  # or your required version
 flask
 peewee
 pandas
