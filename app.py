@@ -45,12 +45,13 @@ def forecast_prices():
         sku = float(req['sku'])
         time_key = float(req['time_key'])
 
+        """
         # Validate ranges
         if not (feature_ranges["sku"][^0] <= sku <= feature_ranges["sku"][^1]):
             return jsonify({'error': f'sku {sku} out of range'}), 422
         if not (feature_ranges["time_key"][^0] <= time_key <= feature_ranges["time_key"][^1]):
             return jsonify({'error': f'time_key {time_key} out of range'}), 422
-
+        """
         # Build feature vector: only sku and time_key
         features_dict = {"sku": sku, "time_key": time_key}
         # If your model expects more features, you must add them as constants or defaults
