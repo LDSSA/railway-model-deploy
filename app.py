@@ -12,6 +12,94 @@ from playhouse.shortcuts import model_to_dict
 from playhouse.db_url import connect
 
 
+import json
+import joblib
+import pickle
+import pandas as pd
+from flask import Flask, request, jsonify
+
+# Load model, columns, dtypes at startup
+with open('columns.json') as fh:
+    columns = json.load(fh)
+pipeline = joblib.load('pipeline.pickle')
+with open('dtypes.pickle', 'rb') as fh:
+    dtypes = pickle.load(fh)
+
+# --- Feature Ranges for Validation (if needed) ---
+feature_ranges = {
+    "sku": (1128.0, 4735.0),
+    "time_key": (20230103.0, 20241028.0),
+    # Add more if your model expects more features
+}
+
+# Flask app
+app = Flask(__name__)
+
+@app.route('/forecast_prices/', methods=['POST'])
+def forecast_prices():
+    try:
+        req = request.get_json()
+        if not req or 'sku' not in req or 'time_key' not in req:
+            return jsonify({'error': 'Payload must contain "sku" and "time_key" fields'}), 422
+
+        sku = float(req['sku'])
+        time_key = float(req['time_key'])
+
+        # Validate ranges
+        if not (feature_ranges["sku"][^0] <= sku <= feature_ranges["sku"][^1]):
+            return jsonify({'error': f'sku {sku} out of range'}), 422
+        if not (feature_ranges["time_key"][^0] <= time_key <= feature_ranges["time_key"][^1]):
+            return jsonify({'error': f'time_key {time_key} out of range'}), 422
+
+        # Build feature vector: only sku and time_key
+        features_dict = {"sku": sku, "time_key": time_key}
+        # If your model expects more features, you must add them as constants or defaults
+        for col in columns:
+            if col not in features_dict:
+                features_dict[col] = 0.0  # or np.nan, or another default
+
+        obs = pd.DataFrame([features_dict], columns=columns).astype(dtypes)
+        y_pred = pipeline.predict(obs)
+        y_pred = y_pred.flatten() if hasattr(y_pred, "flatten") else y_pred
+        pvpA, pvpB = float(y_pred[^0]), float(y_pred[^1])
+
+        return jsonify({
+            "sku": int(sku),
+            "time_key": int(time_key),
+            "pvp_is_competitorA": pvpA,
+            "pvp_is_competitorB": pvpB
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 422
+
+@app.route('/actual_prices/', methods=['POST'])
+def actual_prices():
+    try:
+        req = request.get_json()
+        required_fields = {'sku', 'time_key', 'pvp_is_competitorA_actual', 'pvp_is_competitorB_actual'}
+        if not req or not required_fields.issubset(req):
+            return jsonify({'error': f'Payload must contain {required_fields}'}), 422
+
+        return jsonify({
+            "sku": int(req["sku"]),
+            "time_key": int(req["time_key"]),
+            "pvp_is_competitorA": None,
+            "pvp_is_competitorB": None,
+            "pvp_is_competitorA_actual": float(req["pvp_is_competitorA_actual"]),
+            "pvp_is_competitorB_actual": float(req["pvp_is_competitorB_actual"])
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 422
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', debug=True, port=5000)
+
+
+
+
+""" The remaining code is inactivated
 ########################################
 # Begin database stuff
 
@@ -198,6 +286,7 @@ def list_db_contents():
 
 # End webserver stuff
 ########################################
+"""
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, port=5000)
