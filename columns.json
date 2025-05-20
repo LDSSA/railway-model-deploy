@@ -1,1 +1,1 @@
-["age", "education", "hours-per-week", "native-country"]
+["sku", "structure_level_2", "time_key", "avg_price_chain", "avg_discount_chain", "promo_intensity_chain", "avg_price_competitorA", "avg_discount_competitorA", "promo_intensity_competitorA", "avg_price_competitorB", "avg_discount_competitorB", "promo_intensity_competitorB", "price_gap_A_vs_B", "rolling7_final_A", "rolling7_final_B", "pvp_is_competitorA", "pvp_is_competitorB"]
