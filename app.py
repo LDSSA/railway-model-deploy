@@ -6,29 +6,6 @@ import pandas as pd
 from flask import Flask, jsonify, request
 from peewee import (
     Model, IntegerField, FloatField,
-    TextField, IntegrityError
-)
-from playhouse.shortcuts import model_to_dict
-from playhouse.db_url import connect
-
-
-import json
-import joblib
-import pickle
-import pandas as pd
-from flask import Flask, request, jsonify
-
-from tensorflow import keras
-
-
-import os
-import json
-import pickle
-import joblib
-import pandas as pd
-from flask import Flask, jsonify, request
-from peewee import (
-    Model, IntegerField, FloatField,
     TextField, DateTimeField, IntegrityError
 )
 from playhouse.shortcuts import model_to_dict
@@ -146,7 +123,12 @@ def forecast_prices():
         if existing:
             return jsonify({
                 "error": "Prediction already exists",
-                "existing_prediction": model_to_dict(existing)
+                "existing_prediction": {
+                    "sku": str(existing.sku),
+                    "time_key": existing.time_key,
+                    "pvp_is_competitorA": existing.predicted_pvpA,
+                    "pvp_is_competitorB": existing.predicted_pvpB
+                }
             }), 409
         
         # Make prediction
@@ -162,7 +144,13 @@ def forecast_prices():
             predicted_pvpB=float(y_pred[1])
         )
         
-        return jsonify(model_to_dict(prediction)), 201
+        # Return in requested format
+        return jsonify({
+            "sku": str(prediction.sku),
+            "time_key": prediction.time_key,
+            "pvp_is_competitorA": prediction.predicted_pvpA,
+            "pvp_is_competitorB": prediction.predicted_pvpB
+        }), 201
         
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -196,7 +184,12 @@ def actual_prices():
         prediction.actual_pvpB = float(req['pvp_is_competitorB_actual'])
         prediction.save()
         
-        return jsonify(model_to_dict(prediction)), 200
+        return jsonify({
+            "sku": str(prediction.sku),
+            "time_key": prediction.time_key,
+            "pvp_is_competitorA": prediction.actual_pvpA,
+            "pvp_is_competitorB": prediction.actual_pvpB
+        }), 200
         
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -212,7 +205,15 @@ def get_prediction(sku, time_key):
             (PricePrediction.sku == sku) & 
             (PricePrediction.time_key == time_key)
         )
-        return jsonify(model_to_dict(prediction)), 200
+        return jsonify({
+            "sku": str(prediction.sku),
+            "time_key": prediction.time_key,
+            "pvp_is_competitorA": prediction.predicted_pvpA,
+            "pvp_is_competitorB": prediction.predicted_pvpB,
+            "actual_pvpA": prediction.actual_pvpA,
+            "actual_pvpB": prediction.actual_pvpB,
+            "prediction_time": prediction.prediction_time.isoformat()
+        }), 200
     except PricePrediction.DoesNotExist:
         return jsonify({
             'error': f'No prediction found for sku {sku} and time_key {time_key}'
@@ -249,4 +250,3 @@ if __name__ == "__main__":
         port=5000,
         debug=DEBUG_MODE
     )
-
