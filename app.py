@@ -6,7 +6,7 @@ import pandas as pd
 from flask import Flask, jsonify, request
 from peewee import (
     Model, IntegerField, FloatField,
-    TextField, DateTimeField, IntegrityError
+    TextField, DateTimeField
 )
 from playhouse.shortcuts import model_to_dict
 from playhouse.db_url import connect
@@ -22,8 +22,7 @@ DEBUG_MODE = os.environ.get('DEBUG', '0') == '1'
 # Database Setup
 ########################################
 
-#DB = connect(os.environ.get('DATABASE_URL') or 'sqlite:///predictions.db')
-DB = connect(sqlite:///predictions.db)
+DB = connect(os.environ.get('DATABASE_URL') or 'sqlite:///predictions.db')
 
 class PricePrediction(Model):
     sku = IntegerField()
@@ -46,7 +45,6 @@ DB.create_tables([PricePrediction], safe=True)
 # Model Loading
 ########################################
 
-# Load model artifacts
 try:
     with open('columns.json') as fh:
         columns = json.load(fh)
@@ -75,9 +73,9 @@ def validate_price_request(req, require_actual=False):
     if missing_fields:
         raise ValueError(f"Missing required fields: {missing_fields}")
     
-    # Type validation
+    # Type validation that accepts both strings and numbers
     try:
-        sku = int(req['sku'])
+        sku = int(req['sku'])  # Convert to int (works for both "123" and 123)
         time_key = int(req['time_key'])
         if require_actual:
             pvpA = float(req['pvp_is_competitorA_actual'])
@@ -85,13 +83,19 @@ def validate_price_request(req, require_actual=False):
     except (ValueError, TypeError) as e:
         raise ValueError(f"Invalid field types: {str(e)}")
     
+    # Additional validation
+    if sku <= 0:
+        raise ValueError("SKU must be a positive number")
+    if time_key <= 0:
+        raise ValueError("time_key must be a positive number")
+    
     return True
 
 def prepare_features(req):
     """Prepare features for model prediction"""
     features_dict = {
-        "sku": float(req['sku']),
-        "time_key": float(req['time_key'])
+        "sku": float(int(req['sku'])),  # Convert to int first, then float
+        "time_key": float(int(req['time_key']))
     }
     
     # Add default values for any missing columns
@@ -112,7 +116,7 @@ def forecast_prices():
         req = request.get_json()
         validate_price_request(req)
         
-        sku = int(req['sku'])
+        sku = int(req['sku'])  # Convert to int (handles both string and number inputs)
         time_key = int(req['time_key'])
         
         # Check for existing prediction
@@ -124,18 +128,18 @@ def forecast_prices():
         if existing:
             return jsonify({
                 "error": "Prediction already exists",
-                "existing_prediction": {
-                    "sku": str(existing.sku),
-                    "time_key": existing.time_key,
-                    "pvp_is_competitorA": existing.predicted_pvpA,
-                    "pvp_is_competitorB": existing.predicted_pvpB
-                }
+                "existing_prediction": model_to_dict(existing, exclude=[
+                    'id', 'prediction_time', 'actual_pvpA', 'actual_pvpB'
+                ])
             }), 409
         
         # Make prediction
         features = prepare_features(req)
         y_pred = pipeline.predict(features)
         y_pred = y_pred.flatten() if hasattr(y_pred, "flatten") else y_pred
+        
+        if len(y_pred) != 2:
+            raise ValueError("Model returned unexpected number of predictions")
         
         # Store prediction
         prediction = PricePrediction.create(
@@ -145,13 +149,9 @@ def forecast_prices():
             predicted_pvpB=float(y_pred[1])
         )
         
-        # Return in requested format
-        return jsonify({
-            "sku": str(prediction.sku),
-            "time_key": prediction.time_key,
-            "pvp_is_competitorA": prediction.predicted_pvpA,
-            "pvp_is_competitorB": prediction.predicted_pvpB
-        }), 201
+        return jsonify(model_to_dict(prediction, exclude=[
+            'id', 'prediction_time', 'actual_pvpA', 'actual_pvpB'
+        ])), 201
         
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -185,12 +185,7 @@ def actual_prices():
         prediction.actual_pvpB = float(req['pvp_is_competitorB_actual'])
         prediction.save()
         
-        return jsonify({
-            "sku": str(prediction.sku),
-            "time_key": prediction.time_key,
-            "pvp_is_competitorA": prediction.actual_pvpA,
-            "pvp_is_competitorB": prediction.actual_pvpB
-        }), 200
+        return jsonify(model_to_dict(prediction)), 200
         
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -198,23 +193,21 @@ def actual_prices():
         app.logger.error(f"Update error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/predictions/<int:sku>/<int:time_key>', methods=['GET'])
+@app.route('/predictions/<sku>/<time_key>', methods=['GET'])
 def get_prediction(sku, time_key):
     """Retrieve a specific prediction"""
     try:
+        # Convert parameters to integers (handles both string and number inputs)
+        sku_int = int(sku)
+        time_key_int = int(time_key)
+        
         prediction = PricePrediction.get(
-            (PricePrediction.sku == sku) & 
-            (PricePrediction.time_key == time_key)
+            (PricePrediction.sku == sku_int) & 
+            (PricePrediction.time_key == time_key_int)
         )
-        return jsonify({
-            "sku": str(prediction.sku),
-            "time_key": prediction.time_key,
-            "pvp_is_competitorA": prediction.predicted_pvpA,
-            "pvp_is_competitorB": prediction.predicted_pvpB,
-            "actual_pvpA": prediction.actual_pvpA,
-            "actual_pvpB": prediction.actual_pvpB,
-            "prediction_time": prediction.prediction_time.isoformat()
-        }), 200
+        return jsonify(model_to_dict(prediction)), 200
+    except ValueError:
+        return jsonify({'error': 'SKU and time_key must be numbers'}), 400
     except PricePrediction.DoesNotExist:
         return jsonify({
             'error': f'No prediction found for sku {sku} and time_key {time_key}'
@@ -222,6 +215,26 @@ def get_prediction(sku, time_key):
     except Exception as e:
         app.logger.error(f"Retrieval error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
+
+########################################
+# Additional Endpoints
+########################################
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'healthy'}), 200
+
+@app.route('/')
+def api_info():
+    return jsonify({
+        'name': 'Price Prediction API',
+        'version': '1.0',
+        'endpoints': {
+            'POST /forecast_prices': 'Make new predictions',
+            'POST /actual_prices': 'Update with actual prices',
+            'GET /predictions/<sku>/<time_key>': 'Get specific prediction'
+        }
+    })
 
 ########################################
 # Error Handlers
