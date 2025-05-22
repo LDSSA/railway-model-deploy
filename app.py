@@ -22,7 +22,8 @@ DEBUG_MODE = os.environ.get('DEBUG', '0') == '1'
 # Database Setup
 ########################################
 
-DB = connect(os.environ.get('DATABASE_URL') or 'sqlite:///predictions.db')
+#DB = connect(os.environ.get('DATABASE_URL') or 'sqlite:///predictions.db')
+DB = connect(sqlite:///predictions.db)
 
 class PricePrediction(Model):
     sku = IntegerField()
