@@ -19,6 +19,19 @@ app = Flask(__name__)
 DEBUG_MODE = os.environ.get('DEBUG', '0') == '1'
 
 ########################################
+# Feature Ranges for Validation
+########################################
+feature_ranges = {
+    "sku": (1124.0, 4735.0),
+    "time_key": (20230103.0, 20241028.0),
+}
+
+def check_range(name, value):
+    minv, maxv = feature_ranges[name]
+    if not (minv <= value <= maxv):
+        raise ValueError(f"{name} {value} out of range [{minv}, {maxv}]")
+
+########################################
 # Database Setup
 ########################################
 
@@ -77,11 +90,14 @@ def validate_price_request(req, require_actual=False):
     try:
         sku = int(req['sku'])  # Convert to int (works for both "123" and 123)
         time_key = int(req['time_key'])
+        # --- Range checks here ---
+        check_range("sku", sku)
+        check_range("time_key", time_key)
         if require_actual:
             pvpA = float(req['pvp_is_competitorA_actual'])
             pvpB = float(req['pvp_is_competitorB_actual'])
     except (ValueError, TypeError) as e:
-        raise ValueError(f"Invalid field types: {str(e)}")
+        raise ValueError(f"Invalid field types or out of range: {str(e)}")
     
     # Additional validation
     if sku <= 0:
@@ -264,3 +280,4 @@ if __name__ == "__main__":
         port=5000,
         debug=DEBUG_MODE
     )
+
