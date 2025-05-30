@@ -24,7 +24,34 @@ DEBUG_MODE = os.environ.get('DEBUG', '0') == '1'
 feature_ranges = {
     "sku": (1124.0, 4735.0),
     "time_key": (20230103.0, 20241028.0),
+    "sales_volume": (0.0, 157854.0),
+    "chain_price": (4.34, 780.89),
+    "competitorA_campaign": (0.0, 0.0),
+    "competitorB_campaign": (0.0, 0.0),
+    "day_of_week": (0.0, 6.0),
+    "is_weekend": (0.0, 1.0),
+    "month": (1.0, 12.0),
+    "quarter": (1.0, 4.0),
+    "is_month_end": (0.0, 1.0),
+    "is_month_start": (0.0, 1.0),
+    "day_sin": (-0.9749279121818236, 0.9749279121818236),
+    "day_cos": (-0.9009688679024191, 1.0),
+    "month_sin": (-1.0, 1.0),
+    "month_cos": (-1.0, 1.0),
+    "pvp_final_competitorA_ma7": (4.34, 780.89),
+    "pvp_final_competitorB_ma7": (3.99, 555.297948),
+    "pvp_final_competitorA_ma14": (4.34, 780.89),
+    "pvp_final_competitorB_ma14": (3.99, 555.297948),
+    "pvp_final_competitorA_ma30": (4.34, 780.89),
+    "pvp_final_competitorB_ma30": (3.9901045333333327, 555.297948),
+    "price_diff_A_vs_B": (-104.49, 197.87938899999995),
+    "price_ratio_A_vs_B": (0.3331844573470299, 3.156063786422382),
+    "price_diff_A_vs_chain": (-303.720732, 212.62273200000004),
+    "price_ratio_A_vs_chain": (0.3331844573470299, 4.125412541254127),
+    "pvp_is_competitorA": (4.34, 780.89),
+    "pvp_is_competitorB": (3.99, 555.297948),
 }
+
 
 def check_range(name, value):
     minv, maxv = feature_ranges[name]
