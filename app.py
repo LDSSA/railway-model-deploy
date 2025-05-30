@@ -48,8 +48,8 @@ feature_ranges = {
     "price_ratio_A_vs_B": (0.3331844573470299, 3.156063786422382),
     "price_diff_A_vs_chain": (-303.720732, 212.62273200000004),
     "price_ratio_A_vs_chain": (0.3331844573470299, 4.125412541254127),
-    "pvp_is_competitorA": (4.34, 780.89),
-    "pvp_is_competitorB": (3.99, 555.297948),
+    #"pvp_is_competitorA": (4.34, 780.89),
+    #"pvp_is_competitorB": (3.99, 555.297948),
 }
 
 
