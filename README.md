@@ -48,13 +48,22 @@ Create a virtual environment for the notebooks as described in the next section.
 
 ### 1.2 Python virtual environment
 
+The supported local environment for Batch 10 is **Ubuntu 26.04** with **Python 3.14**.
+
 You've probably noticed that we have two requirements files in this repo: `requirements_dev.txt` and `requirements_prod.txt`.
 
-The `requirements_dev.txt` file has the packages that are needed while preparing the model and include jupyter and matplotlib.
+The `requirements_dev.txt` file has the packages that are needed while preparing the model and includes Jupyter and matplotlib.
 
-The `requirements_prod.txt` file has the packages that are needed when we deploy our model. At that point, we won't need jupyter or matplotlib, so we can save some resources by not installing them.
+The `requirements_prod.txt` file has the packages that are needed when we deploy our model.
 
-Now go ahead and create a Python virtual env using the requirements in `requirements_dev.txt` in order to follow this tutorial.
+Create and activate a Python 3.14 virtual environment, then install the development requirements:
+
+```bash
+python3.14 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements_dev.txt
+```
 
 You can now study both learning notebooks. Continue with the next section after you have studied them.
 
@@ -133,7 +142,7 @@ if __name__ == "__main__":
 
 ```
 
-Save your `app.py` file and you are ready to run the server. To run the server, open a terminal window and create a new virtual environment for production with the `requirements_prod.txt` file. Activate the venv, then run the server by executing `python3.12 app.py`. Your server will now be running locally. If everything worked, you should something like this in your terminal:
+Save your `app.py` file and you are ready to run the server. To run the server, open a terminal window and create a new virtual environment for production with the `requirements_prod.txt` file. Activate the venv, then run the server by executing `python3.14 app.py`. Your server will now be running locally. If everything worked, you should something like this in your terminal:
 
 <img src="media/first_app_running.png">
 
@@ -556,9 +565,9 @@ do much good in terms of making the model available to the rest of the world. Al
 `localhost` stuff doesn't help anybody who's not at your local machine.
 
 So let's take all of the work we've done getting this running and put it on a cloud where it can generate real business value. For this part, you can use any server
-that has a static IP address though since we want to avoid the overhead of administering
-our own server, we will use a service to do this for us called [railway](https://railway.app/).
-Railway includes a free plan that should be enough for our needs throughout this specialization and the whole capstone project, but **only if you remember to turn off your applications once you're done with them**. Currently the free plan includes a 30-day trial $5.00 of credit and after that you get a $1 credit every month. It doesn't sound like a lot, but it's enough for small projects. Be careful before you move forward with a big project on railway - it can get CRAZY expensive REALLY fast.
+with a public URL. Since we want to avoid the overhead of administering our own server, we will use a service called [Railway](https://railway.com/).
+
+Railway's pricing and free allowances can change, and the available credit is not guaranteed to cover the whole specialization or Capstone. Check the [current Railway pricing](https://railway.com/pricing) before deploying, monitor your usage, and **remove your application and database deployments when you are done with them**. Railway currently documents a 30-day trial with $5.00 of credit, followed by $1.00 of free credit per month on the Free plan.
 
 ### 6.1 Set up your repo
 Railway will deploy your code from a GitHub repo, so first you need to make a copy of this repository and make sure that your app code is in the `app.py` file.
@@ -567,7 +576,7 @@ A very important file in the repository is the Dockerfile. This file defines the
 
 ### 6.2 Sign up and set up at railway
 
-Go to the [railway main page](https://railway.app/) and start a new project deployed from a github repo. Alternatively you can use the login button. Note that the screenshots are from a couple of years ago, so the visuals can be slightly different now.
+Go to the [Railway main page](https://railway.com/), sign in with GitHub, and open the [Railway dashboard](https://railway.com/dashboard). Create a new project and choose **Deploy from GitHub repo**. The screenshots below show an older Railway interface, so follow the current control names described in the text.
 
 ![main page](media/main_page.png)
 ![gh deploy](media/gh_deploy.png)
@@ -576,26 +585,25 @@ Sign in using your GitHub credentials and verify your account.
 
 ![gh login](media/gh_login.png)
 
-Once this is all done, go to the [dashboard](https://railway.app/dashboard) and create a new
-app:
+Once this is done, create a new project from the dashboard:
 
 ![create new app](media/new_project.png)
 
-Then on the next screen, we'll reselect the "deploy from GitHub" option. Grant access to your repositories and select the appropriate one. Afterwards click on "Deploy now". 
+If prompted, select **Deploy from GitHub repo** again. Grant Railway access to your repositories, select the personal repository containing your app, and click **Deploy now**.
 
 ![select project from github](media/new_project_2.png)
 ![deploy project](media/new_project_3.png)
 
-Once this is done, you'll be taken to the main dashboard where you'll see your application building. Wait until it's completed, signaled by a green box saying "Success". **In this tab we can see a button that will allow us to check the logs of our app.** This will be very important to check whether our app is responding successfully to the requests sent or not.
+Railway will open the project canvas and build the application. Wait until the deployment reports **Success**. Open the deployment logs from the application service when you need to confirm that the Flask app started correctly or diagnose a failed request.
 
 ![success build](media/build_successful.png)
 
-Go to "Settings" and scroll down to "Generate Domain". Click on the "Generate domain" button. **This will generate a url for your app, and we can use it to make requests to your app.** Choose 5000 for the port.
+Open the application service, go to **Settings > Networking > Public Networking**, and click **Generate Domain**. This creates the public URL that you will use to make requests to the Flask app. Select port `5000` when Railway asks for the target port.
 
 ![generate domain](media/generate_domain.png)
 ![generate domain example](media/generate_domain_2.png)
 
-One last thing before we can move on to the database creation, we need to redefine what port our requests will be coming from. As seen above, we're using `port 5000`. We can define this by going to the "Variables" tab, and add a new `PORT` variable with this value.
+One last thing before we can move on to the database creation, we need to define the port used by this course application. Open the application service's **Variables** tab and add a `PORT` variable with the value `5000`. Apply the staged change if Railway asks you to deploy it.
 
 ![port variable](media/port.png)
 
@@ -604,16 +612,17 @@ One last thing before we can move on to the database creation, we need to redefi
 One last bit is missing here: **the database**. We are going to use a big boy database
 called postgreSQL. You should try to be conservative with how you connect to the app and don't go crazy with it. If the database gets full your app will stop working!
 
-You can check railway's postgreSQL guide [here](https://docs.railway.com/guides/postgresql).
+You can check Railway's current [PostgreSQL documentation](https://docs.railway.com/databases/postgresql).
 
-To add a Database to our app, go to the dashboard, right click and select a new service to add:
+On the project canvas, click **+ New > Database > PostgreSQL** to add the database service:
 
 ![start database](media/database_from_dashboard.png)
 
-The database should automatically connect to your app. Go to "Variables" and check that you have the `DATABASE_URL` variable defined:
+The PostgreSQL service provides a `DATABASE_URL` variable. Open the Flask application service's **Variables** tab and add `DATABASE_URL` as a reference to the PostgreSQL service's `DATABASE_URL` value, for example `${{Postgres.DATABASE_URL}}`. Apply the staged change so that Railway redeploys the application.
+
 ![connect database variable](media/database_connect_variable.png)
 
-Wait for the app to redeploy after adding the database and test that the app is connected to the database like this:
+After the redeployment finishes, use the PostgreSQL service's **Data** or **Query** view to confirm that the `prediction` table exists:
 
 ![connect database query](media/database_connect_query.png)
 
@@ -621,7 +630,7 @@ There is no data in the table, but it exists because the query ran successfully.
 
 ### 6.4 Remove deployment
 
-To stop billing and resource usage, you'll need to stop the application from running. To do so, find your app and database in the dashboard and select the 3 dots in the most recent deployment. Select "Remove". 
+To stop further deployment usage, remove the running application and database deployments. Open each service's **Deployments** view, select the three-dot menu for the active deployment, and choose **Remove**.
 
 ![remove deployment](media/remove_deployment.png)
 ![remove deployment 2](media/remove_deployment_2.png)

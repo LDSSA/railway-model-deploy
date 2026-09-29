@@ -1,7 +1,7 @@
-pandas==2.3.2              # base
-matplotlib==3.10.5         # base
-scikit-learn==1.7.1        # base
-category-encoders==2.8.1   # base
+pandas==2.3.3              # base
+matplotlib==3.10.8         # base
+scikit-learn==1.9.1        # base
+category-encoders==2.10.0  # base
 
 Flask==3.1.3              # S06
 peewee==4.0.0             # S06
